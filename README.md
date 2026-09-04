@@ -2,6 +2,45 @@
 
 Full-stack tender scraper and search dashboard for Indian government procurement portals. The app uses Next.js for the UI, Express/TypeScript for the API, Prisma for database access, and PostgreSQL for storage.
 
+## System Design
+
+```mermaid
+flowchart LR
+  Admin[Admin Browser] -->|Login, scraper controls| Frontend[Next.js Frontend<br/>localhost:3001]
+  User[User Browser] -->|Login, search, alerts| Frontend
+  Frontend -->|REST API + HTTP-only session cookie| Backend[Express API<br/>localhost:4001]
+  Backend --> Auth[Role-Based Auth<br/>Admin / User]
+  Backend --> Scraper[Portal Scraper Registry<br/>22 portal adapters]
+  Backend --> Alerts[Email Alert Service<br/>Nodemailer SMTP]
+  Scraper --> Portals[Government Tender Portals]
+  Scraper --> Database[(PostgreSQL<br/>RRP database)]
+  Auth --> Database
+  Alerts --> Database
+  Alerts --> Gmail[Gmail SMTP]
+  Gmail --> Recipients[Configured Recipients<br/>+ user subscriptions]
+```
+
+## Screenshots
+
+Add current screenshots after running the project:
+
+```text
+docs/screenshots/login.png
+docs/screenshots/admin-dashboard.png
+```
+
+Recommended screenshots:
+
+- Login page showing separate Admin Login and User Login tabs.
+- Admin dashboard showing scraper controls, portal cards, tender list, sessions, and alert recipients.
+- User dashboard showing search, tender details, portal status, and alert preferences.
+
+Markdown preview paths:
+
+![Login screen](docs/screenshots/login.png)
+
+![Admin dashboard](docs/screenshots/admin-dashboard.png)
+
 ## Current Status
 
 - Backend runs on `http://localhost:4001` in the local setup.
@@ -21,6 +60,8 @@ scripts/     Smoke-test helper scripts
 ```
 
 ## Local Setup
+
+Use this local setup when PostgreSQL is already running on your machine.
 
 ### Database
 
@@ -151,6 +192,18 @@ ALERT_DEFAULT_RECIPIENTS=recipient1@example.com,recipient2@example.com
 
 When `ALERTS_ENABLED=false`, the alert cycle still runs safely but skips sending email.
 
+Recommended production rule: keep Gmail app passwords, database passwords, and OAuth secrets only in `.env`, deployment secrets, or the server environment. Never write real secrets into source files, screenshots, issues, or commits.
+
+## End-To-End Flow
+
+- Admin logs in through the Admin Login tab.
+- Admin runs one portal scraper, Scrape New, or Full Sweep from the dashboard.
+- Backend calls the enabled portal adapters and stores normalized tenders in PostgreSQL.
+- New and updated tender records are visible immediately from the frontend search dashboard.
+- Alert matching checks user keywords and default recipients.
+- Email digest is sent through configured Gmail SMTP when alerts are enabled.
+- Normal users can search, view portal status, and manage alerts, but cannot start scraper jobs.
+
 ## Docker Setup
 
 Docker Compose runs PostgreSQL, backend, and frontend together:
@@ -193,6 +246,21 @@ Expected local behavior:
 - User login hides scraper actions.
 - User API calls to trigger scrapers return `Admin access required`.
 - `/api/portals` returns the registered portal list after login.
+
+## Screenshot Capture
+
+After the app is running, capture screenshots manually and save them here:
+
+```powershell
+mkdir docs\screenshots
+```
+
+Save browser screenshots as:
+
+```text
+docs/screenshots/login.png
+docs/screenshots/admin-dashboard.png
+```
 
 ## Git Hygiene
 
