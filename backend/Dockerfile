@@ -1,7 +1,7 @@
 FROM node:20-bullseye AS build
 WORKDIR /app
-COPY package.json ./
-RUN npm install
+COPY package.json package-lock.json ./
+RUN npm ci
 COPY . .
 RUN npx prisma generate && npm run build
 
@@ -11,6 +11,6 @@ ENV NODE_ENV=production
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/dist ./dist
 COPY --from=build /app/prisma ./prisma
-COPY package.json ./
+COPY package.json package-lock.json ./
 EXPOSE 4000
 CMD ["node", "dist/index.js"]

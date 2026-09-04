@@ -36,9 +36,20 @@ services:
       PORT: 4000
       CORS_ALLOWED_ORIGINS: http://localhost:3000
       PORTAL_SCRAPE_ENABLED: "true"
+      SCRAPE_ON_STARTUP: "false"
+      ALERTS_ENABLED: "${ALERTS_ENABLED:-false}"
+      SMTP_HOST: "${SMTP_HOST:-smtp.gmail.com}"
+      SMTP_PORT: "${SMTP_PORT:-465}"
+      SMTP_USER: "${SMTP_USER:-}"
+      SMTP_APP_PASSWORD: "${SMTP_APP_PASSWORD:-}"
+      ALERT_FROM_EMAIL: "${ALERT_FROM_EMAIL:-}"
+      ALERT_DEFAULT_RECIPIENTS: "${ALERT_DEFAULT_RECIPIENTS:-}"
+      SEED_ADMIN_EMAIL: "${SEED_ADMIN_EMAIL:-2317053@ritindia.edu}"
+      SEED_USER_EMAIL: "${SEED_USER_EMAIL:-user@rrpgroups.in}"
+      SEED_USER_PASSWORD: "${SEED_USER_PASSWORD:-sandesh@8010}"
     ports:
       - "4000:4000"
-    command: sh -c "npx prisma migrate deploy && node dist/index.js"
+    command: sh -c "npx prisma migrate deploy && npm run seed:auth && node dist/index.js"
 
   frontend:
     build: ./frontend

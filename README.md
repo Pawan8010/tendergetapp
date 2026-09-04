@@ -206,10 +206,19 @@ Recommended production rule: keep Gmail app passwords, database passwords, and O
 
 ## Docker Setup
 
-Docker Compose runs PostgreSQL, backend, and frontend together:
+Docker Compose is the fastest path for a new user because it starts PostgreSQL, applies Prisma migrations, seeds the default admin/user accounts, starts the backend, and starts the frontend with one command.
+
+Requirements:
+
+- Docker Desktop installed and running.
+- Ports `3000`, `4000`, and `5432` free.
+- Internet access for the first build so Docker can pull Node/PostgreSQL images and install npm packages.
+
+Quick run:
 
 ```powershell
-cd "C:\Users\rajpu\OneDrive\Desktop\23 portal"
+git clone https://github.com/Pawan8010/tendergetapp.git
+cd tendergetapp
 docker compose up --build
 ```
 
@@ -219,6 +228,53 @@ Docker URLs:
 Frontend: http://localhost:3000
 Backend:  http://localhost:4000/health
 ```
+
+Docker defaults:
+
+- PostgreSQL service: `db`
+- Docker database: `tender_platform`
+- Docker database user: `tender_app`
+- Backend container port: `4000`
+- Frontend container port: `3000`
+- Frontend API URL: `http://localhost:4000`
+
+Seeded Docker accounts are controlled by environment variables in `docker-compose.yml`:
+
+```env
+SEED_ADMIN_EMAIL=2317053@ritindia.edu
+SEED_USER_EMAIL=user@rrpgroups.in
+SEED_USER_PASSWORD=sandesh@8010
+```
+
+To enable Gmail alerts in Docker without committing secrets, create a local `.env` file beside `docker-compose.yml`:
+
+```env
+ALERTS_ENABLED=true
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=465
+SMTP_USER=your-sender@gmail.com
+SMTP_APP_PASSWORD=your-gmail-app-password
+ALERT_FROM_EMAIL=your-sender@gmail.com
+ALERT_DEFAULT_RECIPIENTS=recipient1@example.com,recipient2@example.com
+```
+
+Then run:
+
+```powershell
+docker compose up --build
+```
+
+Useful Docker commands:
+
+```powershell
+docker compose ps
+docker compose logs -f backend
+docker compose logs -f frontend
+docker compose down
+docker compose down -v
+```
+
+Use `docker compose down -v` only when you want to delete the local Docker PostgreSQL data volume and start with a fresh database.
 
 ## Verification
 
@@ -278,7 +334,7 @@ Do not commit secrets, cookies, real database backups, generated build output, o
 The Git remote for the source project is:
 
 ```text
-https://github.com/Pawan8010/allportalsscraper.git
+https://github.com/Pawan8010/tendergetapp.git
 ```
 
 Before pushing, verify the working tree contains only source/docs changes:
